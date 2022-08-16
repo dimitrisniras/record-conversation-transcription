@@ -1,24 +1,21 @@
-# capi-fn_record_leg
+# record-conversation-transcription
 
-## install / run it:
+## Installation/Running
 
-be sure you run the first config as specified here: https://github.com/jurgob/conversation-api-function
+Be sure you run the first config as specified here: <https://github.com/jurgob/conversation-api-function>
 
+Enter in the project directory
 
-enter in the project directory
 ```
 nvm use
 
 npm install
 
 npm start
-
 ```
 
-## how to use it. 
+## How to use it
 
-Just call the number, you will hear a voice and you are gonna be recorded.
+Just call the number, you will hear a voice and you are gonna be recorded and receive a transcription.
 
-you can query `localhost:5001/recordings` to get the list of the recerding events (and so the url of where to download the record)
-
-
+You can query `localhost:5001/transcriptions` to get the list of the transcription events (and so the url of where to download the transcription)

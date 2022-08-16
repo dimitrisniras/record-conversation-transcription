@@ -32,11 +32,7 @@ const {
  * @param {object} nexmo - see the context section above
  * */
 
-const DATACENTER = `https://api.nexmo.com` 
-
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
+const DATACENTER = `https://api.nexmo.com`;
 
 const rtcEvent = async (event, { logger, csClient,storageClient }) => {
 
@@ -98,21 +94,24 @@ const rtcEvent = async (event, { logger, csClient,storageClient }) => {
                  url: `${DATACENTER}/v0.3/conversations/${conversation_id}/events`,
                  method: "post",
                  data: {
-                     type: "audio:record",
-                     from: conversation_id,
-                     body: {
-                         validity:   1,
-                         streamed: true,
-                         format: "mp3",
-                         beep_start: true,
-                         beep_stop: true,
-                         detect_speech: false,
-                         split: true,
-                         multitrack: true,
-                         channels: 1
-                     }
-                 }
-             })
+                    type: "audio:record",
+                    from: conversation_id,
+                    body: {
+                        validity:   1,
+                        streamed: true,
+                        format: "mp3",
+                        beep_start: true,
+                        beep_stop: true,
+                        detect_speech: false,
+                        split: true,
+                        multitrack: true,
+                        channels: 1,
+                        transcription: {
+                            language: "en-US"
+                        }
+                    }
+                }
+            })
             record_id = recordRes.data.body.recording_id
             //audio:dtmf
         } else if (type == 'audio:dtmf' && event.body && event.body.digit == '5') { /* the digit 5 was pressed */
@@ -130,13 +129,13 @@ const rtcEvent = async (event, { logger, csClient,storageClient }) => {
                     }
                 })
             }
-        }  else if (type == 'audio:record:done') { /* the text to speech is finished */
-            const recordingsString = await storageClient.get('recordings')
-            const recordings = recordingsString ? JSON.parse(recordingsString) : []
+        } else if (type == 'audio:transcribe:done') {
+            const transcriptionsString = await storageClient.get('transcriptions');
+            const transcriptions = transcriptionsString ? JSON.parse(transcriptionsString) : []
 
-            recordings.push(event)
+            transcriptions.push(event)
 
-            await storageClient.set('recordings', JSON.stringify(recordings))
+            await storageClient.set('transcriptions', JSON.stringify(transcriptions))
         }
 
     } catch (err) {
@@ -155,19 +154,19 @@ const rtcEvent = async (event, { logger, csClient,storageClient }) => {
  * 
  */
 const route =  async (app) => {
-    app.get('/recordings', async (req, res) => {
+    app.get('/transcriptions', async (req, res) => {
 
         const {
             logger,
             storageClient
         } = req.nexmo;
-        const recordingsString = await storageClient.get('recordings')
-        const recordings = recordingsString ? JSON.parse(recordingsString) : []
+        const transcriptionsString = await storageClient.get('transcriptions')
+        const transcriptions = transcriptionsString ? JSON.parse(transcriptionsString) : []
 
         logger.info(`Hello Request HTTP `)
 
         res.json({
-            recordings
+            transcriptions
         })
     })
 }
